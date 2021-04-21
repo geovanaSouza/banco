@@ -3,16 +3,17 @@ package main
 import (
 	"fmt"
 
+	"github.com/geovanaSouza/banco/clientes"
 	"github.com/geovanaSouza/banco/contas"
 )
 
 func main() {
 
 	fmt.Println("COMPARAÇÃO DE STRUCTS")
-	contaDaGeovana := contas.ContaCorrente{Titular: "Geovana",
-		Saldo: 125.5}
-	contaDaGeovana2 := contas.ContaCorrente{Titular: "Geovana",
-		Saldo: 125.5}
+	contaDaGeovana := contas.ContaCorrente{Titular: clientes.Titular{Nome: "Geovana"}}
+	contaDaGeovana.Depositar(125.5)
+	contaDaGeovana2 := contas.ContaCorrente{Titular: clientes.Titular{Nome: "Geovana"}}
+	contaDaGeovana2.Depositar(125.5)
 
 	fmt.Println("contaDaGeovana:", contaDaGeovana)
 	fmt.Println("contaDaGeovana2", contaDaGeovana2)
@@ -24,15 +25,16 @@ func main() {
 	fmt.Println()
 
 	fmt.Println("NOVA CONTA CORRENTE")
-	contaDaBruna := contas.ContaCorrente{"Bruna", 222, 111222, 200}
+	contaDaBruna := contas.ContaCorrente{Titular: clientes.Titular{Nome: "Bruna", CPF: "110.677.330-52", Profissao: "SRE"}, NumeroAgencia: 222, NumeroConta: 111222}
+	contaDaBruna.Depositar(200)
 	fmt.Println("contaDaBruna", contaDaBruna)
 	fmt.Println()
 
 	fmt.Println("PONTEIROS E STRUCT")
 	var contaDaCris *contas.ContaCorrente
 	contaDaCris = new(contas.ContaCorrente)
-	contaDaCris.Titular = "Cris"
-	contaDaCris.Saldo = 500
+	contaDaCris.Titular.Nome = "Cris"
+	contaDaCris.Depositar(500)
 
 	fmt.Println("Conteúdo ponteiro contaDaCris:", contaDaCris)
 	fmt.Println("Conteúdo do endereço de memória para o qual o ponteiro direciona (*contaDaCris):", *contaDaCris)
@@ -49,8 +51,8 @@ func main() {
 	fmt.Println("Endereço de memória", &contaDaCris2)
 	fmt.Println()
 
-	contaDaCris2.Titular = "Cris"
-	contaDaCris2.Saldo = 500
+	contaDaCris2.Titular.Nome = "Cris"
+	contaDaCris2.Depositar(500)
 
 	fmt.Println("ponteiro contaDaCris:", contaDaCris)
 	fmt.Println("ponteiro contaDaCris2:", contaDaCris2)
@@ -60,8 +62,8 @@ func main() {
 
 	fmt.Println("FUNÇÃO SAQUE")
 	contaDaSilvia := contas.ContaCorrente{}
-	contaDaSilvia.Titular = "Silvia"
-	contaDaSilvia.Saldo = 500
+	contaDaSilvia.Titular.Nome = "Silvia"
+	contaDaSilvia.Depositar(500)
 
 	fmt.Println("Saque na conta da", contaDaSilvia.Titular)
 	valorDoSaque := 300.
@@ -85,8 +87,8 @@ func main() {
 
 	fmt.Println("FUNÇÃO TRANSFERÊNCIA")
 	contaDoGustavo := new(contas.ContaCorrente)
-	contaDoGustavo.Titular = "Gustavo"
-	contaDoGustavo.Saldo = 100
+	contaDoGustavo.Titular.Nome = "Gustavo"
+	contaDoGustavo.Depositar(100)
 
 	fmt.Println("contaDaSilvia:", contaDaSilvia)
 	fmt.Println("contaDoGustavo:", *contaDoGustavo)
@@ -104,4 +106,28 @@ func main() {
 	fmt.Println("Status da Transferência:", statusTransferencia)
 	fmt.Println()
 
+	fmt.Println("CRIANDO CONTA E TITULAR JUNTO usando composição")
+	contaDoBruno := contas.ContaCorrente{Titular: clientes.Titular{
+		Nome:      "Bruno",
+		CPF:       "123.111.123.12",
+		Profissao: "Desenvolvedor"},
+		NumeroAgencia: 123, NumeroConta: 123456}
+	contaDoBruno.Depositar(100)
+	fmt.Println(contaDoBruno)
+	fmt.Println()
+
+	fmt.Println("CRIANDO CLIENTE PRIMEIRO, DEPOIS CONTA usando composição")
+	clienteBruno2 := clientes.Titular{"Bruno", "123.123.123.12", "Desenvolvedor Go"}
+	contaDoBruno2 := contas.ContaCorrente{Titular: clienteBruno2, NumeroAgencia: 123, NumeroConta: 123456}
+	contaDoBruno2.Depositar(100)
+	fmt.Println(contaDoBruno2)
+	fmt.Println()
+
+	fmt.Println("LIDANDO COM VISIBILIDADE DO SALDO")
+	contaExemplo := new(contas.ContaCorrente)
+	contaExemplo.Depositar(100)
+	// Forçando erro após modificar saldo para privado
+	// Error: contaExemplo.Saldo undefined (type *contas.ContaCorrente has no field or method Saldo)
+	// contaExemplo.Saldo = -100
+	fmt.Println(contaExemplo.ObterSaldo())
 }
