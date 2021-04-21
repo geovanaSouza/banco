@@ -2,10 +2,20 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/geovanaSouza/banco/clientes"
 	"github.com/geovanaSouza/banco/contas"
 )
+
+func PagarBoleto(conta verificarConta, valorDoBoleto float64) {
+	fmt.Println("Pagando boleto no valor de", valorDoBoleto)
+	conta.Sacar(valorDoBoleto)
+}
+
+type verificarConta interface {
+	Sacar(valor float64) string
+}
 
 func main() {
 
@@ -130,4 +140,54 @@ func main() {
 	// Error: contaExemplo.Saldo undefined (type *contas.ContaCorrente has no field or method Saldo)
 	// contaExemplo.Saldo = -100
 	fmt.Println(contaExemplo.ObterSaldo())
+	fmt.Println()
+
+	fmt.Println("CONTA POUPANÇA")
+	contaDoDenis := new(contas.ContaPoupanca)
+	contaDaPati := new(contas.ContaCorrente)
+	fmt.Println(reflect.TypeOf(contaDoDenis), "do Denis:", *contaDoDenis)
+	fmt.Println(reflect.TypeOf(contaDaPati), "da Pati:", *contaDaPati)
+	fmt.Println()
+
+	fmt.Println(contaDoDenis.Depositar(-100))
+	fmt.Println("Valor da conta do Denis", contaDoDenis.ObterSaldo())
+	fmt.Println()
+
+	fmt.Println(contaDoDenis.Depositar(100))
+	fmt.Println("Valor da conta do Denis", contaDoDenis.ObterSaldo())
+	fmt.Println()
+
+	contaDoDenis.Sacar(55)
+	fmt.Println()
+
+	fmt.Println(contaDoDenis.Sacar(5000))
+	fmt.Println()
+
+	PagarBoleto(contaDoDenis, 60)
+	fmt.Println(contaDoDenis.ObterSaldo())
+	fmt.Println()
+
+	PagarBoleto(contaDoDenis, 40)
+	fmt.Println()
+
+	contaDoDenis2 := contas.ContaPoupanca{}
+	contaDoDenis2.Depositar(100)
+	fmt.Println()
+
+	PagarBoleto(&contaDoDenis2, 60)
+	fmt.Println()
+
+	contaDaLuisa := new(contas.ContaCorrente)
+	contaDaLuisa.Depositar(500)
+	PagarBoleto(contaDaLuisa, 400)
+	fmt.Println()
+
+	PagarBoleto(contaDaLuisa, 400)
+	fmt.Println(contaDaLuisa.ObterSaldo())
+	fmt.Println()
+
+	PagarBoleto(contaDaLuisa, 1000)
+	fmt.Println(contaDaLuisa.ObterSaldo())
+	fmt.Println()
+
 }
